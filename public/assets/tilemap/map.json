@@ -38,7 +38,7 @@
          "name":"Fondo",
          "opacity":1,
          "type":"tilelayer",
-         "visible":false,
+         "visible":true,
          "width":30,
          "x":0,
          "y":0
@@ -189,7 +189,7 @@
         {
          "columns":33,
          "firstgid":1,
-         "image":"..\/..\/..\/..\/pack-result\/texture.png",
+         "image":"..\/texture.png",
          "imageheight":680,
          "imagewidth":800,
          "margin":0,

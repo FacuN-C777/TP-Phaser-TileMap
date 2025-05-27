@@ -38,12 +38,10 @@ export default class Game extends Phaser.Scene {
       "Objetos",
       (obj) => obj.name === "player"
     );
-    console.log("spawnPoint", spawnPoint);
 
     this.player = this.physics.add.sprite(spawnPoint.x, spawnPoint.y, "dude");
-
     this.player.setBounce(0.2);
-    this.player.setCollideWorldBounds(true);
+    this.player.setCollideWorldBounds(false);
 
     this.anims.create({
       key: "left",
@@ -51,13 +49,11 @@ export default class Game extends Phaser.Scene {
       frameRate: 10,
       repeat: -1,
     });
-
     this.anims.create({
       key: "turn",
       frames: [{ key: "dude", frame: 4 }],
       frameRate: 20,
     });
-
     this.anims.create({
       key: "right",
       frames: this.anims.generateFrameNumbers("dude", { start: 5, end: 8 }),
@@ -70,6 +66,10 @@ export default class Game extends Phaser.Scene {
 
     platformLayer.setCollisionByProperty({ Collisionable: true });
     this.physics.add.collider(this.player, platformLayer);
+
+    //setting camera
+    this.cameras.main.setBounds(0, 0, map.widthInPixels, map.heightInPixels);
+    this.cameras.main.startFollow(this.player);
 
     // tiles marked as colliding
     /*
@@ -115,6 +115,18 @@ export default class Game extends Phaser.Scene {
       fontSize: "32px",
       fill: "#000",
     });*/
+
+    //setting a goal for the labyrinth
+    const goalPoint = map.findObject("Objetos", (obj) => obj.name === "goal");
+    this.goal = this.physics.add.sprite(goalPoint.x, goalPoint.y, "star");
+
+    const goalTouch = this.physics.add.overlap(
+      this.player,
+      this.goal,
+      this.reachGoal,
+      null,
+      this
+    );
   }
 
   update() {
@@ -156,5 +168,20 @@ export default class Game extends Phaser.Scene {
         child.enableBody(true, child.x, 0, true, true);
       });
     }
+  }
+
+  reachGoal() {
+    this.physics.pause();
+    this.add
+      .text(
+        this.cameras.main.worldView.x + this.cameras.main.centerX,
+        this.cameras.main.worldView.y + this.cameras.main.centerY,
+        `¡victoria!`,
+        {
+          fontSize: "64px",
+          fill: "#ffff",
+        }
+      )
+      .setOrigin(0.5, 0.5);
   }
 }

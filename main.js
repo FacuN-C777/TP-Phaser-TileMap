@@ -3,8 +3,8 @@ import Game from "./scenes/Game.js";
 // Create a new Phaser config object
 const config = {
   type: Phaser.AUTO,
-  width: 2400,
-  height: 2400,
+  width: 600,
+  height: 600,
   scale: {
     mode: Phaser.Scale.FIT,
     autoCenter: Phaser.Scale.CENTER_BOTH,
