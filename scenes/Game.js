@@ -10,10 +10,10 @@ export default class Game extends Phaser.Scene {
   }
 
   preload() {
-    this.load.tilemapTiledJSON("map", "public/assets/tilemap/map.json");
-    this.load.image("tileset", "public/assets/texture.png");
+    this.load.tilemapTiledJSON("map", "public/assets/tilemap/Mapa.json");
+    this.load.image("tileset", "public/assets/Tilemap_Assets.png");
+    this.load.image("background", "public/assets/background1.png");
     this.load.image("star", "public/assets/star.png");
-
     this.load.spritesheet("dude", "./public/assets/dude.png", {
       frameWidth: 32,
       frameHeight: 48,
@@ -23,13 +23,14 @@ export default class Game extends Phaser.Scene {
   create() {
     const map = this.make.tilemap({ key: "map" });
 
-    // Parameters are the name you gave the tileset in Tiled and then the key of the tileset image in
-    // Phaser's cache (i.e. the name you used in preload)
-    const tileset = map.addTilesetImage("tileset", "tileset");
+    /* Parameters are the name you gave the tileset in Tiled and then the key of the tileset image in
+    Phaser's cache (i.e. the name you used in preload)*/
+    const background = map.addTilesetImage("Fondo Mapa", "background");
+    const tileset = map.addTilesetImage("Tilemap Walls", "tileset");
 
     // Parameters: layer name (or index) from Tiled, tileset, x, y
-    const belowLayer = map.createLayer("Fondo", tileset, 0, 0);
-    const platformLayer = map.createLayer("Plataformas", tileset, 0, 0);
+    const belowLayer = map.createLayer("Background", background, 0, 0);
+    const platformLayer = map.createLayer("Walls", tileset, 0, 0);
     const objectsLayer = map.getObjectLayer("Objetos");
 
     // Find in the Object Layer, the name "dude" and get position
@@ -67,7 +68,7 @@ export default class Game extends Phaser.Scene {
     this.cursors = this.input.keyboard.createCursorKeys();
     this.keyR = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.R);
 
-    platformLayer.setCollisionByProperty({ esColisionable: true });
+    platformLayer.setCollisionByProperty({ Collisionable: true });
     this.physics.add.collider(this.player, platformLayer);
 
     // tiles marked as colliding
@@ -85,7 +86,7 @@ export default class Game extends Phaser.Scene {
 
     // find object layer
     // if type is "stars", add to stars group
-    objectsLayer.objects.forEach((objData) => {
+    /*objectsLayer.objects.forEach((objData) => {
       console.log(objData);
       const { x = 0, y = 0, name, type } = objData;
       switch (type) {
@@ -113,27 +114,28 @@ export default class Game extends Phaser.Scene {
     this.scoreText = this.add.text(16, 16, `Score: ${this.score}`, {
       fontSize: "32px",
       fill: "#000",
-    });
+    });*/
   }
 
   update() {
     // update game objects
     if (this.cursors.left.isDown) {
       this.player.setVelocityX(-160);
-
       this.player.anims.play("left", true);
     } else if (this.cursors.right.isDown) {
       this.player.setVelocityX(160);
-
       this.player.anims.play("right", true);
     } else {
       this.player.setVelocityX(0);
-
       this.player.anims.play("turn");
     }
 
     if (this.cursors.up.isDown) {
-      this.player.setVelocityY(-330);
+      this.player.setVelocityY(-160);
+    } else if (this.cursors.down.isDown) {
+      this.player.setVelocityY(160);
+    } else {
+      this.player.setVelocityY(0);
     }
 
     if (Phaser.Input.Keyboard.JustDown(this.keyR)) {
