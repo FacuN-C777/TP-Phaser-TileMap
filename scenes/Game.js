@@ -63,6 +63,7 @@ export default class Game extends Phaser.Scene {
 
     this.cursors = this.input.keyboard.createCursorKeys();
     this.keyR = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.R);
+    this.keyC = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.C);
 
     platformLayer.setCollisionByProperty({ Collisionable: true });
     this.physics.add.collider(this.player, platformLayer);
@@ -80,41 +81,6 @@ export default class Game extends Phaser.Scene {
       faceColor: new Phaser.Display.Color(40, 39, 37, 255), // Color of colliding face edges
     });
     */
-
-    // Create empty group of starts
-    this.stars = this.physics.add.group();
-
-    // find object layer
-    // if type is "stars", add to stars group
-    /*objectsLayer.objects.forEach((objData) => {
-      console.log(objData);
-      const { x = 0, y = 0, name, type } = objData;
-      switch (type) {
-        case "star": {
-          // add star to scene
-          // console.log("estrella agregada: ", x, y);
-          const star = this.stars.create(x, y, "star");
-          star.setBounceY(Phaser.Math.FloatBetween(0.4, 0.8));
-          break;
-        }
-      }
-    });
-
-    // add collision between player and stars
-    this.physics.add.collider(
-      this.player,
-      this.stars,
-      this.collectStar,
-      null,
-      this
-    );
-    // add overlap between stars and platform layer
-    this.physics.add.collider(this.stars, platformLayer);
-
-    this.scoreText = this.add.text(16, 16, `Score: ${this.score}`, {
-      fontSize: "32px",
-      fill: "#000",
-    });*/
 
     //setting a goal for the labyrinth
     const goalPoint = map.findObject("Objetos", (obj) => obj.name === "goal");
@@ -154,19 +120,9 @@ export default class Game extends Phaser.Scene {
       console.log("Phaser.Input.Keyboard.JustDown(this.keyR)");
       this.scene.restart();
     }
-  }
-
-  collectStar(player, star) {
-    star.disableBody(true, true);
-
-    this.score += 10;
-    this.scoreText.setText(`Score: ${this.score}`);
-
-    if (this.stars.countActive(true) === 0) {
-      //  A new batch of stars to collect
-      this.stars.children.iterate(function (child) {
-        child.enableBody(true, child.x, 0, true, true);
-      });
+    if (Phaser.Input.Keyboard.JustDown(this.keyC)) {
+      console.log("Phaser.Input.Keyboard.JustDown(this.keyC)");
+      this.scene.restart();
     }
   }
 
@@ -179,6 +135,17 @@ export default class Game extends Phaser.Scene {
         `¡victoria!`,
         {
           fontSize: "64px",
+          fill: "#ffff",
+        }
+      )
+      .setOrigin(0.5, 0.5);
+    this.add
+      .text(
+        this.cameras.main.worldView.x + this.cameras.main.centerX,
+        this.cameras.main.worldView.y + this.cameras.main.centerY + 64,
+        `Presiona "C" para continuar`,
+        {
+          fontSize: "32px",
           fill: "#ffff",
         }
       )
