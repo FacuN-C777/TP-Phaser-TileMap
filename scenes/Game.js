@@ -82,6 +82,46 @@ export default class Game extends Phaser.Scene {
     });
     */
 
+    // Create empty group of starts
+    this.stars = this.physics.add.group();
+
+    // find object layer
+    // if type is "stars", add to stars group
+    objectsLayer.objects.forEach((objData) => {
+      console.log(objData);
+      const { x = 0, y = 0, name, type } = objData;
+      switch (type) {
+        case "star": {
+          // add star to scene
+          // console.log("estrella agregada: ", x, y);
+          const star = this.stars.create(x, y, "star");
+          star.setBounceY(Phaser.Math.FloatBetween(0.4, 0.8));
+          break;
+        }
+      }
+    });
+
+    // add collision between player and stars
+    this.physics.add.collider(
+      this.player,
+      this.stars,
+      this.collectStar,
+      null,
+      this
+    );
+    // add overlap between stars and platform layer
+    this.physics.add.collider(this.stars, platformLayer);
+
+    this.scoreText = this.add.text(
+      this.cameras.main.worldView.x + this.cameras.main.centerX,
+      this.cameras.main.worldView.y + this.cameras.main.centerY,
+      `Score: ${this.score}`,
+      {
+        fontSize: "32px",
+        fill: "#000",
+      }
+    );
+
     //setting a goal for the labyrinth
     const goalPoint = map.findObject("Objetos", (obj) => obj.name === "goal");
     this.goal = this.physics.add.sprite(goalPoint.x, goalPoint.y, "star");
@@ -124,31 +164,52 @@ export default class Game extends Phaser.Scene {
       console.log("Phaser.Input.Keyboard.JustDown(this.keyC)");
       this.scene.restart();
     }
+
+    this.scoreText.setPosition(
+      this.cameras.main.worldView.x + 16,
+      this.cameras.main.worldView.y + 16
+    );
+  }
+
+  collectStar(player, star) {
+    star.disableBody(true, true);
+
+    this.score += 10;
+    this.scoreText.setText(`Score: ${this.score}`);
+
+    if (this.stars.countActive(true) === 0) {
+      //  A new batch of stars to collect
+      this.stars.children.iterate(function (child) {
+        child.enableBody(true, child.x, 0, true, true);
+      });
+    }
   }
 
   reachGoal() {
-    this.physics.pause();
-    this.add
-      .text(
-        this.cameras.main.worldView.x + this.cameras.main.centerX,
-        this.cameras.main.worldView.y + this.cameras.main.centerY,
-        `¡victoria!`,
-        {
-          fontSize: "64px",
-          fill: "#ffff",
-        }
-      )
-      .setOrigin(0.5, 0.5);
-    this.add
-      .text(
-        this.cameras.main.worldView.x + this.cameras.main.centerX,
-        this.cameras.main.worldView.y + this.cameras.main.centerY + 64,
-        `Presiona "C" para continuar`,
-        {
-          fontSize: "32px",
-          fill: "#ffff",
-        }
-      )
-      .setOrigin(0.5, 0.5);
+    if (this.score > 10) {
+      this.physics.pause();
+      this.add
+        .text(
+          this.cameras.main.worldView.x + this.cameras.main.centerX,
+          this.cameras.main.worldView.y + this.cameras.main.centerY,
+          `¡victoria!`,
+          {
+            fontSize: "64px",
+            fill: "#ffff",
+          }
+        )
+        .setOrigin(0.5, 0.5);
+      this.add
+        .text(
+          this.cameras.main.worldView.x + this.cameras.main.centerX,
+          this.cameras.main.worldView.y + this.cameras.main.centerY + 64,
+          `Presiona "C" para continuar`,
+          {
+            fontSize: "32px",
+            fill: "#ffff",
+          }
+        )
+        .setOrigin(0.5, 0.5);
+    }
   }
 }
