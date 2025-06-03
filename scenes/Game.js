@@ -14,6 +14,7 @@ export default class Game extends Phaser.Scene {
     this.load.image("tileset", "public/assets/Tilemap_Assets.png");
     this.load.image("background", "public/assets/background1.png");
     this.load.image("star", "public/assets/star.png");
+    this.load.image("bomb", "public/assets/bomb.png");
     this.load.spritesheet("dude", "./public/assets/dude.png", {
       frameWidth: 32,
       frameHeight: 48,
@@ -88,7 +89,6 @@ export default class Game extends Phaser.Scene {
     // find object layer
     // if type is "stars", add to stars group
     objectsLayer.objects.forEach((objData) => {
-      console.log(objData);
       const { x = 0, y = 0, name, type } = objData;
       switch (type) {
         case "star": {
@@ -122,6 +122,34 @@ export default class Game extends Phaser.Scene {
       }
     );
 
+    //enemy spawning
+    this.enemies = this.physics.add.group();
+
+    // find object layer
+    // if type is "enemies", add to enemies group
+    objectsLayer.objects.forEach((objData) => {
+      const { x = 0, y = 0, name, type } = objData;
+      switch (type) {
+        case "enemies": {
+          // add enemy to scene
+          const bomb = this.enemies.create(x, y, "bomb");
+          bomb.setVelocityX(100);
+          bomb.setBounceX(1);
+        }
+      }
+    });
+
+    // add collision between player and bombs
+    this.physics.add.collider(
+      this.player,
+      this.enemies,
+      this.hitEnemy,
+      null,
+      this
+    );
+    // add overlap between stars and platform layer
+    this.physics.add.collider(this.enemies, platformLayer);
+
     //setting a goal for the labyrinth
     const goalPoint = map.findObject("Objetos", (obj) => obj.name === "goal");
     this.goal = this.physics.add.sprite(goalPoint.x, goalPoint.y, "star");
@@ -138,10 +166,10 @@ export default class Game extends Phaser.Scene {
   update() {
     // update game objects
     if (this.cursors.left.isDown) {
-      this.player.setVelocityX(-160);
+      this.player.setVelocityX(-200);
       this.player.anims.play("left", true);
     } else if (this.cursors.right.isDown) {
-      this.player.setVelocityX(160);
+      this.player.setVelocityX(200);
       this.player.anims.play("right", true);
     } else {
       this.player.setVelocityX(0);
@@ -149,24 +177,22 @@ export default class Game extends Phaser.Scene {
     }
 
     if (this.cursors.up.isDown) {
-      this.player.setVelocityY(-160);
+      this.player.setVelocityY(-200);
     } else if (this.cursors.down.isDown) {
-      this.player.setVelocityY(160);
+      this.player.setVelocityY(200);
     } else {
       this.player.setVelocityY(0);
     }
 
     if (Phaser.Input.Keyboard.JustDown(this.keyR)) {
-      console.log("Phaser.Input.Keyboard.JustDown(this.keyR)");
       this.scene.restart();
     }
     if (Phaser.Input.Keyboard.JustDown(this.keyC)) {
-      console.log("Phaser.Input.Keyboard.JustDown(this.keyC)");
       this.scene.restart();
     }
 
     this.scoreText.setPosition(
-      this.cameras.main.worldView.x + 16,
+      this.cameras.main.worldView.x + 440,
       this.cameras.main.worldView.y + 16
     );
   }
@@ -183,6 +209,32 @@ export default class Game extends Phaser.Scene {
         child.enableBody(true, child.x, 0, true, true);
       });
     }
+  }
+
+  hitEnemy() {
+    this.physics.pause();
+    this.add
+      .text(
+        this.cameras.main.worldView.x + this.cameras.main.centerX,
+        this.cameras.main.worldView.y + this.cameras.main.centerY,
+        `Perdiste`,
+        {
+          fontSize: "64px",
+          fill: "#ffff",
+        }
+      )
+      .setOrigin(0.5, 0.5);
+    this.add
+      .text(
+        this.cameras.main.worldView.x + this.cameras.main.centerX,
+        this.cameras.main.worldView.y + this.cameras.main.centerY + 64,
+        `Presiona "R" para empezar de nuevo`,
+        {
+          fontSize: "32px",
+          fill: "#ffff",
+        }
+      )
+      .setOrigin(0.5, 0.5);
   }
 
   reachGoal() {
